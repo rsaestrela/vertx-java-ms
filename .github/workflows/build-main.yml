@@ -1,0 +1,32 @@
+name: build-main
+on:
+  push:
+    branches:
+      - main
+    workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: vertxbroker
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5455:5432
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+          java-package: jdk
+          architecture: x64
+      - id: build
+        run: mvn verify
